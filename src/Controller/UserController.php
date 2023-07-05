@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\UserType;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,7 +15,14 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserController extends AbstractController
 {
-    #[Route('/api/account/{idAccount}/users', name: 'app_user_registration', methods: ['POST'])]
+    #[Route('/api/account/{idAccount}/users', name: 'show_user', methods: ['GET'])]
+    public function showUser(UserRepository $userRepository): JsonResponse
+    {
+        $user = $userRepository->findAll();
+        return $this->json($user, 200);
+    }
+
+    #[Route('/api/account/{idAccount}/users', name: 'registration_user', methods: ['POST'])]
     public function registration(
         Request $request,
         EntityManagerInterface $entityManager,
@@ -37,4 +45,15 @@ class UserController extends AbstractController
 
         return $this->json(['message' => "Something is wrong with your properties"], 400);
     }
+
+    #[Route('/api/account/{idAccount}/users/{id}', name: 'delete_user', methods: ['DELETE'])]
+    public function deleteUser(User $user, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $entityManager->remove($user);
+        $entityManager->flush();
+
+        return $this->json(null, 204);
+    }
+
+
 }

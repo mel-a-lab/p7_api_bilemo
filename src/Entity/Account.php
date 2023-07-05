@@ -3,11 +3,13 @@
 namespace App\Entity;
 
 use DateTime;
+use App\Entity\User;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\AccountRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[ORM\Entity(repositoryClass: AccountRepository::class)]
 class Account
@@ -33,6 +35,7 @@ class Account
     private ?\DateTimeInterface $updatedAt = null;
 
     #[ORM\OneToMany(mappedBy: 'account', targetEntity: User::class)]
+    #[Ignore]
     private Collection $users;
 
     public function __construct()
