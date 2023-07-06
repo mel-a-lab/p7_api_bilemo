@@ -6,6 +6,7 @@ use App\Entity\Product;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -16,18 +17,21 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class ProductController extends AbstractController
 {
     #[Route('/api/list/products', name: 'api_products', methods: ['GET'])]
-    public function listProducts(ProductRepository $productRepository, SerializerInterface $serializer, Request $request): JsonResponse
+    public function listProducts(ProductRepository $productRepository, SerializerInterface $serializer, Request $request, PaginatorInterface $paginator): JsonResponse
     {
-        $page = $request->get('page', 1);
-        $limit = $request->get('limit', 3);
+        $page = $request->query->getInt('page', 1); // Récupère le numéro de page depuis la requête
+        $limit = $request->query->getInt('limit', 10); // Récupère le nombre d'éléments par page depuis la requête
 
-        $idCache = "getAllProducts-" . $page . "-" . $limit;
-        $products = $cachePool->get($idCache, function (ItemInterface $item) use ($productRepository, $page, $limit) {
-            $item->tag("productsCache");
+        $pagination = $paginator->paginate(
+            $productRepository->findAll(),
+            // Query pour récupérer tous les produits
+            $page,
+            // Numéro de page
+            $limit // Nombre d'éléments par page
+        );
 
-        $products = $productRepository->findAllWithPagination($page, $limit);    });
+        $products = $pagination->getItems(); // Récupère les produits de la page courante
 
-        $jsonBookList = $serializer->serialize($products, 'json', ['groups' => 'getBooks']);
         return $this->json($products, 200, [], ["groups" => ["extended"]]);
     }
 
@@ -74,7 +78,7 @@ class ProductController extends AbstractController
         $entityManager->persist($product);
         $entityManager->flush();
 
-        return $this->json($product, 201, [], ["groups" => ["extended"]]);
+        return $this->json($product, 201, []);
     }
 
 

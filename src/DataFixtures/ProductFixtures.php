@@ -10,14 +10,16 @@ class ProductFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        $product = new Product();
-        $product->setName('samsungv2');
-        $product->setPrice('500');
-        $product->setDescription('lorem lorem loren');
-        $product->setSku('samsungv2');
-        $product->setAvailable('1');
+        for ($i = 1; $i <= 30; $i++) {
+            $product = new Product();
+            $product->setName('samsungv2');
+            $product->setPrice('500');
+            $product->setDescription('lorem lorem loren');
+            $product->setSku('samsungv2');
+            $product->setAvailable('1');
 
-        $manager->persist($product);
+            $manager->persist($product);
+        }
 
         $manager->flush();
     }

@@ -46,13 +46,25 @@ class UserController extends AbstractController
         return $this->json(['message' => "Something is wrong with your properties"], 400);
     }
 
-    #[Route('/api/account/{idAccount}/users/{id}', name: 'delete_user', methods: ['DELETE'])]
+    #[Route('/api/users/{id}', name: 'delete_user', methods: ['DELETE'])]
     public function deleteUser(User $user, EntityManagerInterface $entityManager): JsonResponse
     {
         $entityManager->remove($user);
         $entityManager->flush();
 
         return $this->json(null, 204);
+    }
+
+    #[Route('/api/users/{id}', name: 'api_user_details', methods: ['GET'])]
+    public function getUserDetails(User $user, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $response = [
+            'id' => $user->getId(),
+            'name' => $user->getEmail(),
+            'account' => $user->getAccount(),
+        ];
+
+        return $this->json($response);
     }
 
 

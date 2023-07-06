@@ -39,6 +39,20 @@ class ProductRepository extends ServiceEntityRepository
         }
     }
 
+    public function findAllWithPagination(int $page, int $limit): Pagerfanta
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->orderBy('p.id', 'ASC')
+            ->setMaxResults($limit)
+            ->setFirstResult(($page - 1) * $limit);
+
+        $pager = new Pagerfanta(new DoctrineORMAdapter($qb, false, false));
+        $pager->setCurrentPage($page);
+        $pager->setMaxPerPage($limit);
+
+        return $pager;
+    }
+
 //    /**
 //     * @return Product[] Returns an array of Product objects
 //     */
