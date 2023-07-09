@@ -16,7 +16,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class ProductController extends AbstractController
 {
-    #[Route('/api/list/products', name: 'api_products', methods: ['GET'])]
+    #[Route('/api/products', name: 'api_products', methods: ['GET'])]
     public function listProducts(ProductRepository $productRepository, SerializerInterface $serializer, Request $request, PaginatorInterface $paginator): JsonResponse
     {
         $page = $request->query->getInt('page', 1); // Récupère le numéro de page depuis la requête

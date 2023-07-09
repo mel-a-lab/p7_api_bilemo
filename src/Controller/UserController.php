@@ -10,19 +10,27 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserController extends AbstractController
 {
     #[Route('/api/account/{idAccount}/users', name: 'show_user', methods: ['GET'])]
-    public function showUser(UserRepository $userRepository): JsonResponse
+    public function showUser(UserRepository $userRepository, int $idAccount): JsonResponse
     {
-        $user = $userRepository->findAll();
-        return $this->json($user, 200);
+        $users = $userRepository->findBy(['account' => $idAccount]);
+        //Trouver tous les utilisateurs ayant un compte avec l'ID correspondant à $idAccount
+
+        if (!empty($user)) {
+            return $this->json($user, 200);
+        } else {
+            return $this->json(['message' => "Something is wrong with your properties"], 404);
+        }
     }
 
     #[Route('/api/account/{idAccount}/users', name: 'registration_user', methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN')]
     public function registration(
         Request $request,
         EntityManagerInterface $entityManager,
@@ -49,23 +57,33 @@ class UserController extends AbstractController
     #[Route('/api/users/{id}', name: 'delete_user', methods: ['DELETE'])]
     public function deleteUser(User $user, EntityManagerInterface $entityManager): JsonResponse
     {
-        $entityManager->remove($user);
-        $entityManager->flush();
+        if (!$user) {
+            return new JsonResponse(['message' => "Something is wrong with your properties"], 404);
+        } else {
+            $entityManager->remove($user);
+            $entityManager->flush();
 
-        return $this->json(null, 204);
+            return $this->json(null, 204);
+        }
     }
 
     #[Route('/api/users/{id}', name: 'api_user_details', methods: ['GET'])]
     public function getUserDetails(User $user, EntityManagerInterface $entityManager): JsonResponse
     {
-        $response = [
-            'id' => $user->getId(),
-            'name' => $user->getEmail(),
-            'account' => $user->getAccount(),
-        ];
-
-        return $this->json($response);
+        if (!$user) {
+            return new JsonResponse(['message' => "Something is wrong with your properties"], 404);
+        } else {
+            $response = [
+                'id' => $user->getId(),
+                'name' => $user->getEmail(),
+                'account' => $user->getAccount(),
+            ];
+    
+            return $this->json(null, 204);
+        }
     }
+
+
 
 
 }

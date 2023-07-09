@@ -17,13 +17,15 @@ class UserFixtures extends Fixture
     }
     public function load(ObjectManager $manager): void
     {
-        // Création d'un user "normal
-        $user = new User();
-        $user->setEmail('dussennem2000@yahoo.fr');
-        $user->setPassword($this->userPasswordHasher->hashPassword($user, 'testpw'));
-        $account = $this->getReference('account1');
-        $user->setAccount($account);
-        $manager->persist($user);
+        for ($i = 1; $i <= 10; $i++) {
+            $user = new User();
+            $user->setEmail('dussennem2000' . $i . '@yahoo.fr');
+            $user->setPassword($this->userPasswordHasher->hashPassword($user, 'testpw'));
+            $account = $this->getReference('account1');
+            $user->setAccount($account);
+            $manager->persist($user);
+            $user->setRoles(['ROLE_USER']);
+        }
 
         $manager->flush();
     }

@@ -35,7 +35,7 @@ class Account
     private ?\DateTimeInterface $updatedAt = null;
 
     #[ORM\OneToMany(mappedBy: 'account', targetEntity: User::class)]
-    #[Ignore]
+    // #[Ignore]
     private Collection $users;
 
     public function __construct()
