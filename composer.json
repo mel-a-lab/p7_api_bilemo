@@ -12,6 +12,7 @@
         "doctrine/orm": "^2.15",
         "knplabs/knp-paginator-bundle": "^6.2",
         "lexik/jwt-authentication-bundle": "^2.19",
+        "nelmio/api-doc-bundle": "*",
         "sensio/framework-extra-bundle": "^6.2",
         "symfony/console": "6.3.*",
         "symfony/dotenv": "6.3.*",
