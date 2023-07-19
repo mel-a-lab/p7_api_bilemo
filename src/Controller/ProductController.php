@@ -19,7 +19,7 @@ class ProductController extends AbstractController
     #[Route('/api/products', name: 'api_products', methods: ['GET'])]
     public function listProducts(ProductRepository $productRepository, SerializerInterface $serializer, Request $request, PaginatorInterface $paginator): JsonResponse
     {
-        try {
+      
             $page = $request->query->getInt('page', 1); // Récupère le numéro de page depuis la requête
             $limit = $request->query->getInt('limit', 10); // Récupère le nombre d'éléments par page depuis la requête
 
@@ -34,15 +34,12 @@ class ProductController extends AbstractController
             $products = $pagination->getItems(); // Récupère les produits de la page courante
 
             return $this->json($products, 200, [], ["groups" => ["extended"]]);
-        } catch (\Exception $e) {
-            return $this->json(['message' => "Something is wrong with your properties"], 404);
-        }
+     
     }
 
     #[Route('/api/products/{id}', name: 'api_product_details', methods: ['GET'])]
     public function getProductDetails(Product $product): JsonResponse
     {
-        try {
             $response = [
                 'id' => $product->getId(),
                 'name' => $product->getName(),
@@ -55,12 +52,9 @@ class ProductController extends AbstractController
             ];
 
             return $this->json($response);
-        } catch (\Exception $e) {
-            return $this->json(['message' => "Something is wrong with your properties"], 400);
-        }
     }
 
-    #[Route('/api/products/{product}', name: 'delete_product', methods: ['DELETE'])]
+    #[Route('/api/products/{id}', name: 'delete_product', methods: ['DELETE'])]
     public function deleteProduct(EntityManagerInterface $entityManager, Product $product): JsonResponse
     {
         try {
@@ -76,7 +70,7 @@ class ProductController extends AbstractController
     #[Route('/api/products', name: 'api_create_product', methods: ['POST'])]
     public function createProduct(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
-        try {
+      
             $data = json_decode($request->getContent(), true);
 
             $product = new Product();
@@ -92,10 +86,6 @@ class ProductController extends AbstractController
             $entityManager->flush();
 
             return $this->json($product, 201, []);
-        } catch (\Exception $e) {
-            return $this->json(['error' => $e->getMessage()], $e->getCode());
-        }
-
 
     }
 }
