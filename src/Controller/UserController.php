@@ -20,13 +20,8 @@ class UserController extends AbstractController
     public function showUser(UserRepository $userRepository, int $idAccount): JsonResponse
     {
         $users = $userRepository->findBy(['account' => $idAccount]);
-        //Trouver tous les utilisateurs ayant un compte avec l'ID correspondant à $idAccount
 
-        if (!empty($user)) {
-            return $this->json($user, 200);
-        } else {
-            return $this->json(['message' => "Something is wrong with your properties"], 404);
-        }
+        return $this->json($users, 200);
     }
 
     #[Route('/api/account/{idAccount}/users', name: 'registration_user', methods: ['POST'])]
