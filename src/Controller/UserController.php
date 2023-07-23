@@ -45,8 +45,6 @@ class UserController extends AbstractController
 
             return $this->json($user, 201);
         }
-
-        return $this->json(['message' => "Something is wrong with your properties"], 400);
     }
 
     #[Route('/api/users/{id}', name: 'delete_user', methods: ['DELETE'])]
