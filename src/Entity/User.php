@@ -8,6 +8,26 @@ use App\Repository\UserRepository;
 use Symfony\Component\Serializer\Annotation\Ignore;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use JMS\Serializer\Annotation as Serializer;
+use Hateoas\Configuration\Annotation as Hateoas;
+
+/**
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "api_user_details",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="getUsers")
+ * )
+ * * @Hateoas\Relation(
+ *      "delete",
+ *      href = @Hateoas\Route(
+ *          "delete_user",  parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ *      
+ * )
+ */
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface

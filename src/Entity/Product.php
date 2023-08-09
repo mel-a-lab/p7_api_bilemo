@@ -10,6 +10,26 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\Ignore;
+use Hateoas\Configuration\Annotation as Hateoas;
+
+/**
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "api_product_details",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups={"extended"})
+ * )
+ * @Hateoas\Relation(
+ *      "delete_product",
+ *      href = @Hateoas\Route(
+ *          "delete_product",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups={"extended"})
+ * )
+ */
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 class Product
@@ -46,6 +66,8 @@ class Product
     #[ORM\Column]
     #[Ignore]
     private ?bool $deleted = false;
+
+    
 
     public function __construct()
     {

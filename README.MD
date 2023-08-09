@@ -1,4 +1,4 @@
-# MélanieDsn API
+# Mélanie API
 > OpenClassRooms Project
 
 This project is for my training.
