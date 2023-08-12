@@ -15,6 +15,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use Hateoas\Configuration\Annotation as Hateoas;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Validator\ConstraintViolationList;
+
 
 class ProductController extends AbstractController
 {
@@ -76,7 +79,7 @@ class ProductController extends AbstractController
     }
 
     #[Route('/api/products', name: 'api_create_product', methods: ['POST'])]
-    public function createProduct(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serialize): JsonResponse
+    public function createProduct(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serialize, ValidatorInterface $validator): JsonResponse
     {
 
         $data = json_decode($request->getContent(), true);
@@ -89,6 +92,15 @@ class ProductController extends AbstractController
         $product->setAvailable($data['available']);
         $product->setCreatedAt(new \DateTime('now'));
         $product->setUpdatedAt(new \DateTime('now'));
+
+        $errors = $validator->validate($product);
+        if (count($errors) > 0) {
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[] = $error->getMessage();
+            }
+            return $this->json(['errors' => $errorMessages], Response::HTTP_BAD_REQUEST);
+        }
 
         $entityManager->persist($product);
         $entityManager->flush();

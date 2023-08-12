@@ -11,6 +11,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\Ignore;
 use Hateoas\Configuration\Annotation as Hateoas;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 /**
  * @Hateoas\Relation(
@@ -42,6 +44,8 @@ class Product
 
     #[ORM\Column(length: 255)]
     #[Groups(['extended'])]
+
+    #[Assert\NotBlank]
     private ?string $name = null;
 
     #[ORM\Column]
