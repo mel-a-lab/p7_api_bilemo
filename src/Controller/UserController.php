@@ -2,19 +2,20 @@
 
 namespace App\Controller;
 
-use App\Entity\Account;
 use App\Entity\User;
 use App\Form\UserType;
-use JMS\Serializer\SerializerInterface;
-use JMS\Serializer\SerializationContext;
+use App\Entity\Account;
 use App\Repository\UserRepository;
+use JMS\Serializer\SerializerInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -45,13 +46,23 @@ class UserController extends AbstractController
     public function registration(
         Request $request,
         EntityManagerInterface $entityManager,
-        UserPasswordHasherInterface $userPasswordHasher, SerializerInterface $serialize
+        UserPasswordHasherInterface $userPasswordHasher, SerializerInterface $serialize,
+        ValidatorInterface $validator
     ): JsonResponse {
         $user = new User();
 
         $form = $this->createForm(UserType::class, $user);
         $parameters = json_decode($request->getContent(), true);
         $form->submit($parameters);
+
+        $errors = $validator->validate($user);
+    if (count($errors) > 0) {
+        $errorMessages = [];
+        foreach ($errors as $error) {
+            $errorMessages[] = $error->getMessage();
+        }
+        return $this->json(['errors' => $errorMessages], Response::HTTP_BAD_REQUEST);
+    }
 
         if ($form->isValid()) {
             $user->setPassword($userPasswordHasher->hashPassword($user, $form->get('password')->getData()));
