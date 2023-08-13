@@ -10,6 +10,7 @@
         "doctrine/doctrine-bundle": "^2.10",
         "doctrine/doctrine-migrations-bundle": "^3.2",
         "doctrine/orm": "^2.15",
+        "egulias/email-validator": "^4.0",
         "jms/serializer-bundle": "^5.3",
         "knplabs/knp-paginator-bundle": "^6.2",
         "lexik/jwt-authentication-bundle": "^2.19",
