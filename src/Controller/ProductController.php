@@ -45,21 +45,9 @@ class ProductController extends AbstractController
     #[Route('/api/products/{id}', name: 'api_product_details', methods: ['GET'])]
     public function getProductDetails(Product $product, SerializerInterface $serialize): JsonResponse
     {
-        //     $response = [
-//         'id' => $product->getId(),
-//         'name' => $product->getName(),
-//         'price' => $product->getPrice(),
-//         'description' => $product->getDescription(),
-//         'sku' => $product->getSku(),
-//         'available' => $product->isAvailable(),
-//         'createdAt' => $product->getCreatedAt(),
-//         'updatedAt' => $product->getUpdatedAt(),
-//     ];
-
         $context = SerializationContext::create();
         $jsonProduct = $serialize->serialize($product, 'json', $context);
         return new JsonResponse($jsonProduct, Response::HTTP_CREATED, ['accept' => 'json'], true);
-        //          return $this->json($response);
     }
 
     #[Route('/api/products/{id}', name: 'delete_product', methods: ['DELETE'])]

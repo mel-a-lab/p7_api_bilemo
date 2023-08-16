@@ -38,8 +38,6 @@ class UserController extends AbstractController
         $context = SerializationContext::create();
         $jsonUsers = $serialize->serialize($users, 'json', $context);
         return new JsonResponse($jsonUsers, Response::HTTP_OK, ['accept' => 'json'], true);
-
-        //  return $this->json($users, 200);
     }
 
     #[Route('/api/account/{idAccount}/users', name: 'registration_user', methods: ['POST'])]
@@ -69,8 +67,6 @@ class UserController extends AbstractController
 
             $entityManager->persist($user);
             $entityManager->flush();
-
-            // return $this->json($user, 201);
             $context = SerializationContext::create();
             $jsonUser = $serialize->serialize($user, 'json', $context);
             return new JsonResponse($jsonUser, Response::HTTP_CREATED, ['accept' => 'json'], true);
