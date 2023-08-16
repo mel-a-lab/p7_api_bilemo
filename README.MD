@@ -1,5 +1,6 @@
 # Mélanie API
 > OpenClassRooms Project
+[![SymfonyInsight](https://insight.symfony.com/projects/7f94ef16-ed89-4e1a-903b-2541455b116b/big.svg)](https://insight.symfony.com/projects/7f94ef16-ed89-4e1a-903b-2541455b116b)
 
 This project is for my training.
 
