@@ -93,5 +93,4 @@ class UserController extends AbstractController
         $jsonUser = $serialize->serialize($user, 'json', $context);
         return new JsonResponse($jsonUser, Response::HTTP_OK, ['accept' => 'json'], true);
     }
-
 }
