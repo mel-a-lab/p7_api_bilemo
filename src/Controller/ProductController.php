@@ -25,23 +25,20 @@ class ProductController extends AbstractController
     public function listProducts(ProductRepository $productRepository, SerializerInterface $serializer, Request $request, PaginatorInterface $paginator, SerializerInterface $serialize): JsonResponse
     {
 
-        $page = $request->query->getInt('page', 1); // Récupère le numéro de page depuis la requête
-        $limit = $request->query->getInt('limit', 10); // Récupère le nombre d'éléments par page depuis la requête
+        $page = $request->query->getInt('page', 1); 
+        $limit = $request->query->getInt('limit', 10); 
 
         $pagination = $paginator->paginate(
             $productRepository->findAll(),
-            // Query pour récupérer tous les produits
             $page,
-            // Numéro de page
-            $limit // Nombre d'éléments par page
+            $limit 
         );
 
-        $products = $pagination->getItems(); // Récupère les produits de la page courante
+        $products = $pagination->getItems(); 
 
         $context = SerializationContext::create();
         $jsonProducts = $serialize->serialize($products, 'json', $context);
         return new JsonResponse($jsonProducts, Response::HTTP_OK, ['accept' => 'json'], true);
-        //return $this->json($products, 200, [], ["groups" => ["extended"]]);
 
     }
 
@@ -108,7 +105,6 @@ class ProductController extends AbstractController
         $context = SerializationContext::create();
         $jsonProduct = $serialize->serialize($product, 'json', $context);
         return new JsonResponse($jsonProduct, Response::HTTP_CREATED, ['accept' => 'json'], true);
-      //  return $this->json($product, 201, []);
 
     }
 }
