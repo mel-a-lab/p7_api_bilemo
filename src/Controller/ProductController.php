@@ -21,23 +21,25 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 class ProductController extends AbstractController
 {
+
+
     #[Route('/api/products', name: 'api_products', methods: ['GET'])]
     public function listProducts(ProductRepository $productRepository, SerializerInterface $serializer, Request $request, PaginatorInterface $paginator, SerializerInterface $serialize): JsonResponse
     {
 
-        $page = $request->query->getInt('page', 1); 
-        $limit = $request->query->getInt('limit', 10); 
+        $page = $request->query->getInt('page', 1);
+        $limit = $request->query->getInt('limit', 10);
 
         $pagination = $paginator->paginate(
             $productRepository->findAll(),
             $page,
-            $limit 
+            $limit
         );
 
-        $products = $pagination->getItems(); 
+        $products = $pagination->getItems();
 
-        $context = SerializationContext::create();
-        $jsonProducts = $serialize->serialize($products, 'json', $context);
+ //       $context = SerializationContext::create();
+        $jsonProducts = $this->serializer->serialize($products, 'json');
         return new JsonResponse($jsonProducts, Response::HTTP_OK, ['accept' => 'json'], true);
 
     }
