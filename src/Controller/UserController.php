@@ -5,92 +5,63 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Entity\Account;
-use App\Repository\UserRepository;
+use App\Service\UserService;
 use JMS\Serializer\SerializerInterface;
-use Doctrine\ORM\EntityManagerInterface;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserController extends AbstractController
 {
+    public function __construct(private SerializerInterface $serializer) {}
+
     #[Route('/api/account/{account}/users', name: 'show_user', methods: ['GET'])]
-    public function showUsers(UserRepository $userRepository, Request $request, Account $account, PaginatorInterface $paginator, SerializerInterface $serialize): JsonResponse
+    public function showUsers(UserService $userService, Account $account): JsonResponse
     {
-        $page = $request->query->getInt('page', 1);
-        $limit = $request->query->getInt('limit', 10);
-
-        $pagination = $paginator->paginate(
-            $userRepository->findAll(),
-            $page,
-            $limit
-        );
-
-        $users = $userRepository->findBy(['account' => $account]);
+        $users = $userService->showUsersForAccount($account);
 
         $context = SerializationContext::create();
-        $jsonUsers = $serialize->serialize($users, 'json', $context);
-        return new JsonResponse($jsonUsers, Response::HTTP_OK, ['accept' => 'json'], true);
+        $jsonUsers = $this->serializer->serialize($users, 'json', $context);
+
+        return new JsonResponse($jsonUsers, Response::HTTP_OK, [], true);
     }
 
     #[Route('/api/account/{idAccount}/users', name: 'registration_user', methods: ['POST'])]
-    public function registration(
-        Request $request,
-        EntityManagerInterface $entityManager,
-        UserPasswordHasherInterface $userPasswordHasher, SerializerInterface $serialize,
-        ValidatorInterface $validator
-    ): JsonResponse {
-        $user = new User();
-
-        $form = $this->createForm(UserType::class, $user);
+    public function registration(Request $request, UserService $userService): JsonResponse
+    {
         $parameters = json_decode($request->getContent(), true);
-        $form->submit($parameters);
+        $result = $userService->registerUser($parameters);
 
-        $errors = $validator->validate($user);
-    if (count($errors) > 0) {
-        $errorMessages = [];
-        foreach ($errors as $error) {
-            $errorMessages[] = $error->getMessage();
+        if (array_key_exists('errors', $result)) {
+            return $this->json(['errors' => $result['errors']], Response::HTTP_BAD_REQUEST);
         }
-        return $this->json(['errors' => $errorMessages], Response::HTTP_BAD_REQUEST);
-    }
 
-        if ($form->isValid()) {
-            $user->setPassword($userPasswordHasher->hashPassword($user, $form->get('password')->getData()));
+        $context = SerializationContext::create();
+        $jsonUser = $this->serializer->serialize($result['user'], 'json', $context);
 
-            $entityManager->persist($user);
-            $entityManager->flush();
-            $context = SerializationContext::create();
-            $jsonUser = $serialize->serialize($user, 'json', $context);
-            return new JsonResponse($jsonUser, Response::HTTP_CREATED, ['accept' => 'json'], true);
-        }
+        return new JsonResponse($jsonUser, Response::HTTP_CREATED, [], true);
     }
 
     #[Route('/api/users/{id}', name: 'delete_user', methods: ['DELETE'])]
-    public function deleteUser(User $user, EntityManagerInterface $entityManager, SerializerInterface $serialize): JsonResponse
+    public function deleteUser(User $user, UserService $userService): JsonResponse
     {
-        if (!$user) {
-            return new JsonResponse(['message' => "Something is wrong with your properties"], 404);
-        } else {
-            $entityManager->remove($user);
-            $entityManager->flush();
-
-            return $this->json(null, 204,);
+        try {
+            $userService->deleteUser($user);
+            return $this->json(null, Response::HTTP_NO_CONTENT);
+        } catch (\Exception $e) {
+            return $this->json(['message' => 'An error occurred'], Response::HTTP_BAD_REQUEST);
         }
     }
 
     #[Route('/api/users/{id}', name: 'api_user_details', methods: ['GET'])]
-    public function getUserDetails(User $user, EntityManagerInterface $entityManager, SerializerInterface $serialize): JsonResponse
+    public function getUserDetails(User $user): JsonResponse
     {
         $context = SerializationContext::create();
-        $jsonUser = $serialize->serialize($user, 'json', $context);
-        return new JsonResponse($jsonUser, Response::HTTP_OK, ['accept' => 'json'], true);
+        $jsonUser = $this->serializer->serialize($user, 'json', $context);
+        return new JsonResponse($jsonUser, Response::HTTP_OK, [], true);
     }
 }
