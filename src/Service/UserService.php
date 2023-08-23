@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 class UserService
 {
@@ -20,17 +21,26 @@ class UserService
         private FormFactoryInterface $formFactory
     ) {}
 
-    public function showUsersForAccount($account)
+    /**
+     * @param mixed $account
+     * @return User[]|array
+     */
+    public function showUsersForAccount(mixed $account): array
     {
         return $this->userRepository->findBy(['account' => $account]);
     }
 
-    public function registerUser($parameters)
+    /**
+     * @param array $parameters
+     * @return array
+     */
+    public function registerUser(array $parameters): array
     {
         $user = new User();
         $form = $this->formFactory->create(UserType::class, $user);
         $form->submit($parameters);
 
+        /** @var ConstraintViolationListInterface $errors */
         $errors = $this->validator->validate($user);
 
         if (count($errors) > 0) {
@@ -51,7 +61,7 @@ class UserService
         return ['errors' => 'Invalid form submission'];
     }
 
-    public function deleteUser(User $user)
+    public function deleteUser(User $user): void
     {
         $this->entityManager->remove($user);
         $this->entityManager->flush();
