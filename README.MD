@@ -6,6 +6,7 @@
 ## Introduction
 
 Ce projet API est créé dans le cadre de ma formation chez OpenClassRooms. L'API permet de faire X, Y, et Z. Elle est destinée à être utilisée par des développeurs qui souhaitent faire A, B, et C.
+L'export de la collection de cette API se trouve dans le fichier bilemo.postman_collection.json à la racine.
 
 ## Prérequis
 
@@ -42,8 +43,11 @@ Créez un utilisateur avec la commande ci-dessous :
 bin/console app:create-user your-email@domain.com your-password
 
 ### Étape 6: Génération de la paire de clés pour JWT
-Générez votre paire de clés pour JWT en utilisant la commande :
-bin/console lexik:jwt:generate-keypair
+Configurez le chemin et la phrase de passe des clés SSL dans votre fichier .env :
+JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem
+JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
+JWT_PASSPHRASE=
+Configurer la sécurité de l'application dans security.yaml (voir documentation https://symfony.com/bundles/LexikJWTAuthenticationBundle/current/index.html)
 
 ### Utilisation Authentification et Tokens
 Pour tester l'API via Postman, vous devez mettre en place un système de "Bearer Token". Utilisez le token généré précédemment comme valeur du "Bearer Token".
