@@ -43,6 +43,7 @@ Créez un utilisateur avec la commande ci-dessous :
 bin/console app:create-user your-email@domain.com your-password
 
 ### Étape 6: Génération de la paire de clés pour JWT
+commande : composer require lexik/jwt-authentication-bundle
 Configurez le chemin et la phrase de passe des clés SSL dans votre fichier .env :
 JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem
 JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
