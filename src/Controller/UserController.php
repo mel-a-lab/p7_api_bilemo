@@ -14,22 +14,65 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Annotations as OA;
 
 class UserController extends AbstractController
 {
     public function __construct(private SerializerInterface $serializer) {}
 
-    #[Route('/api/account/{account}/users', name: 'show_user', methods: ['GET'])]
-    public function showUsers(UserService $userService, Account $account): JsonResponse
-    {
-        $users = $userService->showUsersForAccount($account);
+        #[Route('/api/account/{account}/users', name: 'show_user', methods: ['GET'])]
+        public function showUsers(UserService $userService, Account $account, Request $request, PaginatorInterface $paginator): JsonResponse
+        {
+            $page = $request->query->getInt('page', 1); 
+            $limit = $request->query->getInt('limit', 10);
+        
+            $users = $userService->showUsersForAccount($account);
+        
+            $pagination = $paginator->paginate($users, $page, $limit);
+        
+            $context = SerializationContext::create();
+            $jsonUsers = $this->serializer->serialize($pagination->getItems(), 'json', $context);
+        
+            return new JsonResponse($jsonUsers, Response::HTTP_OK, [], true);
+        }
+        
 
-        $context = SerializationContext::create();
-        $jsonUsers = $this->serializer->serialize($users, 'json', $context);
-
-        return new JsonResponse($jsonUsers, Response::HTTP_OK, [], true);
-    }
-
+    /**
+     * Cette méthode permet de s'inscrire sur l'API Bilemo.
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Retourne l'utilisateur créé",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=User::class, groups={"getUsers"}))
+     *     )
+     * )
+     *
+     * @OA\Response(
+     *     response=400,
+     *     description="Mauvaise requête de l'utilisateur"
+     * )
+     *
+     * @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(
+     *         example={
+     *             "email": "contact@user.com",
+     *             "password": "password",
+     *             "account": 19
+     *         },
+     *         @OA\Schema (
+     *              type="object",
+     *              @OA\Property(property="email", required=true, description="User's Email", type="string"),
+     *              @OA\Property(property="password", required=true, description="User's Password", type="string")
+     *         )
+     *     )
+     * )
+     *
+     * @OA\Tag(name="Utilisateurs")
+     */
     #[Route('/api/account/{idAccount}/users', name: 'registration_user', methods: ['POST'])]
     public function registration(Request $request, UserService $userService): JsonResponse
     {

@@ -12,6 +12,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Annotations as OA;
+
+
 
 class ProductController extends AbstractController
 {
@@ -55,6 +59,48 @@ class ProductController extends AbstractController
         }
     }
 
+    /**
+     * Cette méthode permet d'ajouter un produit lié au client.
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Retourne le produit créé",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=Product::class, groups={"getProducts"}))
+     *     )
+     * )
+     *
+     * @OA\Response(
+     *     response=400,
+     *     description="Mauvaise requête de l'utilisateur"
+     * )
+     *
+     * @OA\Response(
+     *     response=403,
+     *     description="Droits insuffisants pour ajouter un produit"
+     * )
+     *
+     * @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(
+     *         example={
+     *              "name": "samsungv2",
+     *              "price": "22",
+     *              "description": "ssskkbbhome",
+     *              "sku": "iphdssxone13",
+     *              "available": "oui"
+     *         },
+     *         @OA\Schema (
+     *              type="object",
+     *              @OA\Property(property="status", required=true, description="Event Status", type="string"),
+     *              @OA\Property(property="comment", required=false, description="Change Status Comment", type="string")
+     *         )
+     *     )
+     * )
+     *
+     * @OA\Tag(name="Produits")
+     */
     #[Route('/api/products', name: 'api_create_product', methods: ['POST'])]
     public function createProduct(Request $request, ProductService $productService): JsonResponse
     {
